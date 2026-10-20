@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pastry English">
+  <meta name="theme-color" content="#120D18">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="L'anglais appliqué aux métiers de la pâtisserie (CAP, MC, BP) : flashcards, quiz, écoute, écriture et correction par IA.">
+  <title>Pastry English Pro</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div id="home-screen">
+    <div class="home-logo" aria-hidden="true"><img src="icons/icon-192.png" alt="" width="88" height="88"></div>
+    <h1>Pastry English Pro</h1>
+    <p class="subtitle">L’anglais professionnel, un petit progrès à la fois.</p>
+    <p class="home-audience">CAP · MC · BP · Apprendre, pratiquer, progresser</p>
+
+    <div class="home-stats" id="home-stats" aria-live="polite"></div>
+
+    <div class="image-grid">
+      <img src="img/hero-vitrine.jpg" alt="Vitrine de pâtisseries" width="320" height="110" decoding="async">
+      <img src="img/hero-ustensiles.jpg" alt="Ustensiles et ingrédients de pâtisserie" width="320" height="110" decoding="async">
+    </div>
+
+    <div class="home-actions">
+      <button class="btn-main" data-action="start-train">🚀 Lancer l'entraînement</button>
+      <button class="btn-secondary" data-action="start-exam">📝 Mode Examen &amp; IA</button>
+      <button class="btn-secondary" data-action="open-settings">⚙️ Réglages</button>
+    </div>
+  </div>
+
+  <div id="game-screen">
+    <header>
+      <div class="header-top">
+        <button class="btn-icon" data-action="home" aria-label="Retour à l'accueil">←</button>
+        <div class="header-title" id="header-title">Pastry English Pro</div>
+        <button class="btn-icon" data-action="open-settings" aria-label="Réglages" title="Réglages">⚙️</button>
+      </div>
+      <div class="progress-panel">
+        <div class="progress-header">
+          <div class="level-info">
+            <span class="level-badge" id="lvl-badge">Niveau 1</span>
+            <span class="level-name" id="lvl-name">Apprentice</span>
+          </div>
+          <div class="xp-count" id="xp-counter" aria-live="polite">0 XP</div>
+        </div>
+        <div class="progress-track" role="progressbar" aria-label="Progression vers le niveau suivant" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track">
+          <div class="progress-fill" id="progress-bar"></div>
+        </div>
+        <div class="mastery-line" id="mastery-line"></div>
+      </div>
+    </header>
+
+    <nav class="menu-container" id="category-menu" aria-label="Catégories"></nav>
+    <nav class="menu-container" id="mode-menu" aria-label="Modes d'entraînement"></nav>
+
+    <main>
+      <div class="card-stage" id="card-stage"></div>
+      <div class="controls-stage" id="controls-stage"></div>
+    </main>
+  </div>
+
+  <dialog id="settings-dialog" aria-labelledby="settings-title">
+    <form method="dialog" id="settings-form">
+      <h2 id="settings-title">Réglages</h2>
+
+      <div class="field">
+        <label for="set-accent">Accent de la voix</label>
+        <select id="set-accent">
+          <option value="en-GB">Britannique (en-GB)</option>
+          <option value="en-US">Américain (en-US)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="set-key">Clé API Gemini (Mode Examen)</label>
+        <input id="set-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…">
+        <small>La clé est enregistrée dans le stockage local de ce navigateur, qui n’est pas un coffre-fort. Tout texte envoyé à la correction est transmis à Google Gemini. N’utilisez pas cette option sur un appareil partagé et ne diffusez jamais une clé personnelle.</small>
+      </div>
+
+      <div class="field">
+        <label for="set-model">Modèle Gemini</label>
+        <input id="set-model" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <small>À modifier seulement si Google retire le modèle par défaut.</small>
+      </div>
+
+      <div class="btn-row" style="margin-bottom:12px">
+        <button class="btn-secondary" type="button" data-action="test-voice">🔊 Tester la voix</button>
+        <button class="btn-secondary danger" type="button" data-action="reset-progress">Remettre à zéro</button>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-secondary" type="button" data-action="close-settings">Annuler</button>
+        <button class="btn-main" type="button" data-action="save-settings" id="settings-save">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <noscript><p style="padding:24px">Cette application nécessite JavaScript.</p></noscript>
+
+  <script src="data.js"></script>
+  <script src="core.js"></script>
+  <script src="exam.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

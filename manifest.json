@@ -1,0 +1,46 @@
+{
+  "id": "./index.html",
+  "name": "Pastry English Pro",
+  "short_name": "Pastry Pro",
+  "description": "Anglais professionnel pour la pâtisserie (CAP, MC, BP) : flashcards, quiz, écoute, écriture et correction IA.",
+  "lang": "fr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#09070d",
+  "theme_color": "#09070d",
+  "categories": [
+    "education"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Entraînement",
+      "url": "./index.html?mode=train"
+    },
+    {
+      "name": "Mode Examen",
+      "url": "./index.html?mode=exam"
+    }
+  ]
+}
