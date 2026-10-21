@@ -1,118 +1,1424 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Pastry English">
-  <meta name="theme-color" content="#120D18">
-  <meta name="color-scheme" content="dark">
-  <meta name="description" content="L'anglais appliqué aux métiers de la pâtisserie (CAP, MC, BP) : flashcards, quiz, écoute, écriture et correction par IA.">
-  <title>Pastry English Pro</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pastry English Pro v2</title>
+    <style>
+        /* ==========================================================================
+           CHARTE GRAPHIQUE & DESIGN : PRUNE (#2a001a), ROSE (#e05688), OR (#ffd700)
+           ========================================================================== */
+        :root {
+            --bg-primary: #1e0012;
+            --bg-secondary: #2b001a;
+            --bg-card: #3a0024;
+            --bg-card-hover: #4a002e;
+            --accent-pink: #e05688;
+            --accent-pink-glow: rgba(224, 86, 136, 0.4);
+            --accent-gold: #ffd700;
+            --accent-gold-dark: #c5a000;
+            --accent-gold-glow: rgba(255, 215, 0, 0.3);
+            --text-main: #ffffff;
+            --text-muted: #d1b3c4;
+            --success: #2ed573;
+            --error: #ff4757;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --transition-fast: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 10px;
+        }
+
+        /* Container principal centré sur desktop, plein écran mobile */
+        #app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 94vh;
+            max-height: 850px;
+            background: linear-gradient(160deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            border: 2px solid var(--accent-gold);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(224, 86, 136, 0.2);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header Fixe */
+        header {
+            padding: 14px 18px;
+            background: rgba(43, 0, 26, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #000;
+            border: 1.5px solid var(--accent-gold);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            box-shadow: 0 0 10px var(--accent-gold-glow);
+        }
+
+        .logo-text h1 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--accent-gold), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text span {
+            font-size: 0.65rem;
+            color: var(--accent-pink);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: block;
+        }
+
+        .btn-icon {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-pink);
+            color: var(--text-main);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .btn-icon:active {
+            transform: scale(0.92);
+            background: var(--accent-pink);
+        }
+
+        /* Zone de contenu dynamique (Vues) */
+        main {
+            flex: 1;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 18px;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeIn 0.35s ease-out forwards;
+            width: 100%;
+            min-height: 100%;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Composants Génériques UI */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-pink) 0%, #b82e5f 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 700;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-pink-glow);
+            transition: var(--transition-fast);
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:active {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: 0 2px 8px var(--accent-pink-glow);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dark) 100%);
+            color: #1a0010;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 800;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-gold-glow);
+            transition: var(--transition-fast);
+            width: 100%;
+        }
+
+        .btn-gold:active {
+            transform: translateY(2px) scale(0.98);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--accent-pink);
+            color: var(--text-main);
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            width: 100%;
+        }
+
+        .btn-outline:active {
+            background: rgba(224, 86, 136, 0.15);
+        }
+
+        /* Section Accueil - Grille de Modes */
+        .home-hero {
+            text-align: center;
+            padding: 10px 0 5px 0;
+        }
+
+        .home-hero h2 {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .home-hero p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .menu-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .menu-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(224, 86, 136, 0.25);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--accent-pink);
+            transition: var(--transition-fast);
+        }
+
+        .menu-card.gold::before {
+            background: var(--accent-gold);
+        }
+
+        .menu-card:active {
+            transform: scale(0.98);
+            background: var(--bg-card-hover);
+        }
+
+        .menu-card-icon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .menu-card-info h3 {
+            font-size: 1.05rem;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .menu-card-info p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .badge-count {
+            margin-left: auto;
+            background: var(--accent-gold);
+            color: #000;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        /* Barres de progression */
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-pink), var(--accent-gold));
+            transition: width 0.3s ease;
+        }
+
+        /* Vue Quiz & Exercices */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-pink);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            margin-bottom: 12px;
+        }
+
+        .question-category {
+            display: inline-block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-gold);
+            background: rgba(255, 215, 0, 0.1);
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .question-term {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .audio-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--accent-gold);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .audio-btn:active {
+            transform: scale(0.9);
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: rgba(58, 0, 36, 0.8);
+            border: 1.5px solid rgba(224, 86, 136, 0.3);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+
+        .option-btn.correct {
+            background: rgba(46, 213, 115, 0.2) !important;
+            border-color: var(--success) !important;
+            color: #2ed573 !important;
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 71, 87, 0.2) !important;
+            border-color: var(--error) !important;
+            color: #ff4757 !important;
+        }
+
+        .feedback-box {
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 4px solid var(--accent-gold);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+            display: none;
+            animation: fadeIn 0.2s ease-in;
+        }
+
+        .feedback-box strong {
+            color: var(--accent-gold);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* Ecran Transition Duel */
+        .duel-transition {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .duel-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 3px solid var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            box-shadow: 0 0 25px var(--accent-gold-glow);
+        }
+
+        .player-turn-title {
+            font-size: 1.5rem;
+            color: #fff;
+            font-weight: 800;
+        }
+
+        /* Modal Badges & Trophées */
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .badge-item {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            text-align: center;
+            opacity: 0.4;
+            filter: grayscale(1);
+            transition: var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-item.unlocked {
+            opacity: 1;
+            filter: grayscale(0);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+            background: linear-gradient(145deg, var(--bg-card), #48002d);
+        }
+
+        .badge-icon {
+            font-size: 2.2rem;
+        }
+
+        .badge-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .badge-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Notification de Badge Débloqué (Pop-up) */
+        #badge-toast {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            width: 88%;
+            background: linear-gradient(135deg, #400027, #1a0010);
+            border: 2px solid var(--accent-gold);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px var(--accent-gold-glow);
+            z-index: 100;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        #badge-toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-icon {
+            font-size: 2.2rem;
+        }
+
+        .toast-info h4 {
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .toast-info p {
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        /* Inputs Formulaires */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .form-input {
+            background: rgba(0,0,0,0.3);
+            border: 1.5px solid var(--accent-pink);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-gold);
+        }
+
+        .select-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .select-btn {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .select-btn.selected {
+            background: var(--accent-pink);
+            border-color: var(--accent-pink);
+        }
+
+        /* Modal Confirmation */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 2px solid var(--accent-gold);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            max-width: 340px;
+            width: 100%;
+        }
+
+        .modal-card h3 {
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+        }
+
+        .modal-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Vue Résultats */
+        .results-box {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 10px 0;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--bg-card) 0%, var(--bg-primary) 100%);
+            border: 4px solid var(--accent-gold);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 0 20px var(--accent-gold-glow);
+        }
+
+        .score-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--accent-gold);
+        }
+
+        .score-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .duel-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .duel-results-table th, .duel-results-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .duel-results-table th {
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+        }
+
+        /* Responsive Scrollbars */
+        main::-webkit-scrollbar {
+            width: 4px;
+        }
+        main::-webkit-scrollbar-thumb {
+            background: var(--accent-pink);
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 
-  <div id="home-screen">
-    <div class="home-logo" aria-hidden="true"><img src="icons/icon-192.png" alt="" width="88" height="88"></div>
-    <h1>Pastry English Pro</h1>
-    <p class="subtitle">L’anglais professionnel, un petit progrès à la fois.</p>
-    <p class="home-audience">CAP · MC · BP · Apprendre, pratiquer, progresser</p>
+    <div id="app-container">
+        <!-- Toast de Notification de Badge -->
+        <div id="badge-toast">
+            <div class="toast-icon" id="toast-icon">🏆</div>
+            <div class="toast-info">
+                <h4>Nouveau Badge Débloqué !</h4>
+                <p id="toast-title">Chef Pâtissier</p>
+            </div>
+        </div>
 
-    <div class="home-stats" id="home-stats" aria-live="polite"></div>
+        <!-- Header -->
+        <header>
+            <div class="logo-box" onclick="confirmGoHome()">
+                <div class="logo-icon">🥖</div>
+                <div class="logo-text">
+                    <h1>Pastry English</h1>
+                    <span>Pro Version 2.0</span>
+                </div>
+            </div>
+            <button class="btn-icon" onclick="confirmGoHome()" title="Accueil">🏠</button>
+        </header>
 
-    <div class="image-grid">
-      <img src="img/hero-vitrine.jpg" alt="Vitrine de pâtisseries" width="320" height="110" decoding="async">
-      <img src="img/hero-ustensiles.jpg" alt="Ustensiles et ingrédients de pâtisserie" width="320" height="110" decoding="async">
+        <!-- Dynamic Content Screen Area -->
+        <main>
+            <!-- 1. ECRAN ACCUEIL -->
+            <section id="screen-home" class="screen active">
+                <div class="home-hero">
+                    <h2>Bienvenue, Apprenti !</h2>
+                    <p>Maîtrise l'anglais de la pâtisserie professionnelle.</p>
+                </div>
+
+                <div class="menu-grid">
+                    <div class="menu-card gold" onclick="startSoloQuiz()">
+                        <div class="menu-card-icon">⚡</div>
+                        <div class="menu-card-info">
+                            <h3>Entraînement Rapide</h3>
+                            <p>Quiz classique de 10 questions aléatoires</p>
+                        </div>
+                    </div>
+
+                    <div class="menu-card" onclick="showScreen('screen-duel-setup')">
+                        <div class="menu-card-icon">⚔️</div>
+                        <div class="menu-card-info">
+                            <h3>Mode Duel (2 Joueurs)</h3>
+                            <p>Affrontez-vous sur ce téléphone</p>
+                        </div>
+                    </div>
+
+                    <div class="menu-card" onclick="startMistakesQuiz()">
+                        <div class="menu-card-icon">📖</div>
+                        <div class="menu-card-info">
+                            <h3>Carnet de Révisions</h3>
+                            <p>Revoyez uniquement vos erreurs</p>
+                        </div>
+                        <span class="badge-count" id="mistakes-count">0</span>
+                    </div>
+
+                    <div class="menu-card" onclick="showScreen('screen-badges')">
+                        <div class="menu-card-icon">🎖️</div>
+                        <div class="menu-card-info">
+                            <h3>Badges & Trophées</h3>
+                            <p>Vos récompenses et accomplissements</p>
+                        </div>
+                        <span class="badge-count" id="badges-unlocked-count">0/5</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. ECRAN CONFIGURATION DUEL -->
+            <section id="screen-duel-setup" class="screen">
+                <h2 style="color: var(--accent-gold); text-align: center;">Configuration du Duel</h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Chaque joueur répondra à son tour aux mêmes questions sur cet appareil.</p>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Nom du Joueur 1</label>
+                    <input type="text" id="p1-name" class="form-input" value="Apprenti 1" maxlength="12">
+                </div>
+
+                <div class="form-group">
+                    <label>Nom du Joueur 2</label>
+                    <input type="text" id="p2-name" class="form-input" value="Apprenti 2" maxlength="12">
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre de questions par joueur</label>
+                    <div class="select-grid">
+                        <div class="select-btn" onclick="selectDuelRounds(5, this)">5</div>
+                        <div class="select-btn selected" onclick="selectDuelRounds(10, this)">10</div>
+                        <div class="select-btn" onclick="selectDuelRounds(15, this)">15</div>
+                        <div class="select-btn" onclick="selectDuelRounds(20, this)">20</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: auto; display: flex; gap: 10px;">
+                    <button class="btn-outline" onclick="showScreen('screen-home')">Annuler</button>
+                    <button class="btn-gold" onclick="initDuelGame()">Lancer le Duel ⚔️</button>
+                </div>
+            </section>
+
+            <!-- 3. ECRAN TRANSITION DUEL -->
+            <section id="screen-duel-transition" class="screen">
+                <div class="duel-transition">
+                    <div class="duel-avatar" id="transition-avatar">👨‍🍳</div>
+                    <div>
+                        <p style="color: var(--accent-pink); font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">A ton tour !</p>
+                        <h2 class="player-turn-title" id="transition-player-name">Joueur 1</h2>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 280px;">Passe le téléphone à ce joueur puis clique sur le bouton ci-dessous pour démarrer son tour.</p>
+                    <button class="btn-gold" onclick="startDuelTurn()">Je suis prêt ! 🚀</button>
+                </div>
+            </section>
+
+            <!-- 4. ECRAN QUIZ (SOLO ET DUEL) -->
+            <section id="screen-quiz" class="screen">
+                <div class="progress-bar-container">
+                    <div id="quiz-progress-bar" class="progress-bar-fill"></div>
+                </div>
+
+                <div class="quiz-header">
+                    <span id="quiz-player-tag" style="color: var(--accent-gold); font-weight:700;">Solo</span>
+                    <span id="quiz-step-counter">Question 1/10</span>
+                </div>
+
+                <div class="question-card">
+                    <span class="question-category" id="question-category">Ustensiles</span>
+                    <div class="question-term">
+                        <span id="question-text">Whisk</span>
+                        <button class="audio-btn" onclick="speakCurrentTerm()" title="Écouter la prononciation">🔊</button>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Quelle est la traduction en français ?</p>
+                </div>
+
+                <div class="options-grid" id="options-container">
+                    <!-- Boutons d'options générés dynamiquement -->
+                </div>
+
+                <div id="feedback-box" class="feedback-box">
+                    <strong id="feedback-title">Explication Pédagogique :</strong>
+                    <span id="feedback-text">Le fouet permet d'incorporer de l'air dans les préparations comme les blancs en neige.</span>
+                </div>
+
+                <button id="next-btn" class="btn-primary" style="margin-top: auto; display: none;" onclick="handleNextQuestion()">Question Suivante ➔</button>
+            </section>
+
+            <!-- 5. ECRAN RESULTATS -->
+            <section id="screen-results" class="screen">
+                <div class="results-box">
+                    <h2 id="results-title" style="color: var(--accent-gold);">Partie Terminée !</h2>
+                    
+                    <div class="score-circle">
+                        <span class="score-number" id="results-score-text">8/10</span>
+                        <span class="score-label" id="results-score-pct">80% Réussite</span>
+                    </div>
+
+                    <p id="results-message" style="font-size: 0.9rem; color: var(--text-muted);">Excellent travail ! Ta connaissance du vocabulaire s'améliore.</p>
+
+                    <!-- Zone spécifique Duel -->
+                    <div id="duel-results-details" style="display: none; width: 100%;">
+                        <table class="duel-results-table">
+                            <thead>
+                                <tr>
+                                    <th>Joueur</th>
+                                    <th>Score</th>
+                                    <th>%</th>
+                                </tr>
+                            </thead>
+                            <tbody id="duel-tbody">
+                                <!-- Lignes remplies par JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                        <button class="btn-gold" onclick="restartCurrentMode()">Rejouer 🔄</button>
+                        <button class="btn-outline" onclick="showScreen('screen-home')">Menu Principal 🏠</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. ECRAN BADGES -->
+            <section id="screen-badges" class="screen">
+                <h2 style="color: var(--accent-gold); text-align: center;">Mes Badges & Trophées</h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Débloque des récompenses en progressant dans ton apprentissage.</p>
+
+                <div class="badges-grid" id="badges-container">
+                    <!-- Badges générés en JS -->
+                </div>
+
+                <button class="btn-outline" style="margin-top: auto;" onclick="showScreen('screen-home')">Retour au Menu</button>
+            </section>
+        </main>
     </div>
 
-    <div class="home-actions">
-      <button class="btn-main" data-action="start-train">🚀 Lancer l'entraînement</button>
-      <button class="btn-secondary" data-action="start-exam">📝 Mode Examen &amp; IA</button>
-      <button class="btn-secondary" data-action="open-settings">⚙️ Réglages</button>
+    <!-- Modal de Confirmation Quitter Partie -->
+    <div id="modal-confirm" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Partie en cours !</h3>
+            <p>Si tu quittes maintenant, ta progression actuelle sera perdue. Veux-tu vraiment retourner à l'accueil ?</p>
+            <div class="modal-btns">
+                <button class="btn-outline" onclick="closeConfirmModal()">Continuer</button>
+                <button class="btn-primary" onclick="forceGoHome()">Quitter</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div id="game-screen">
-    <header>
-      <div class="header-top">
-        <button class="btn-icon" data-action="home" aria-label="Retour à l'accueil">←</button>
-        <div class="header-title" id="header-title">Pastry English Pro</div>
-        <button class="btn-icon" data-action="open-settings" aria-label="Réglages" title="Réglages">⚙️</button>
-      </div>
-      <div class="progress-panel">
-        <div class="progress-header">
-          <div class="level-info">
-            <span class="level-badge" id="lvl-badge">Niveau 1</span>
-            <span class="level-name" id="lvl-name">Apprentice</span>
-          </div>
-          <div class="xp-count" id="xp-counter" aria-live="polite">0 XP</div>
-        </div>
-        <div class="progress-track" role="progressbar" aria-label="Progression vers le niveau suivant" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track">
-          <div class="progress-fill" id="progress-bar"></div>
-        </div>
-        <div class="mastery-line" id="mastery-line"></div>
-      </div>
-    </header>
+    <!-- ==========================================================================
+       LOGIQUE JAVASCRIPT VANILLA - COMPLETE & SECURISEE
+       ========================================================================== -->
+    <script>
+        /* --------------------------------------------------------------------------
+           1. BASE DE DONNEES EXHAUSTIVE DE VOCABULAIRE
+           -------------------------------------------------------------------------- */
+        const VOCABULARY_DB = [
+            // USTENSILES
+            { en: "Whisk", fr: "Fouet", cat: "Ustensiles", exp: "Utilisé pour battre, fouetter et incorporer de l'air." },
+            { en: "Spatula", fr: "Marie-Louise / Spatule", cat: "Ustensiles", exp: "Indispensable pour racler les culs-de-poule et mélanger délicatement." },
+            { en: "Rolling pin", fr: "Rouleau à pâtisserie", cat: "Ustensiles", exp: "Sert à abaisser les pâtes à l'épaisseur souhaitée." },
+            { en: "Piping bag", fr: "Poche à douille", cat: "Ustensiles", exp: "Sert à dresser les crèmes, pâtes à choux et garnitures." },
+            { en: "Cake ring", fr: "Cercle à entremets", cat: "Ustensiles", exp: "Utilisé pour le montage et la cuisson des gâteaux et entremets." },
+            { en: "Baking sheet", fr: "Plaque de cuisson", cat: "Ustensiles", exp: "Plaque métallique supportant les préparations au four." },
+            { en: "Digital scale", fr: "Balance électronique", cat: "Ustensiles", exp: "Essentielle pour la précision exacte des pesées en pâtisserie." },
+            { en: "Sugar thermometer", fr: "Thermomètre à sucre", cat: "Ustensiles", exp: "Mesure la température exacte des sirops et chocolats." },
 
-    <nav class="menu-container" id="category-menu" aria-label="Catégories"></nav>
-    <nav class="menu-container" id="mode-menu" aria-label="Modes d'entraînement"></nav>
+            // ACTIONS & TECHNIQUES
+            { en: "To knead", fr: "Pétrir", cat: "Techniques", exp: "Travailler une pâte pour développer le réseau de gluten." },
+            { en: "To fold", fr: "Incorporer délicatement", cat: "Techniques", exp: "Mélanger une préparation aérienne sans faire tomber les bulles d'air." },
+            { en: "To temper", fr: "Mettre au point (chocolat)", cat: "Techniques", exp: "Courbe de température du chocolat pour obtenir brillance et cassant." },
+            { en: "To glaze", fr: "Glacer", cat: "Techniques", exp: "Recouvrir un entremets d'un glaçage miroir ou gourmand." },
+            { en: "To proof", fr: "Faire pousser (pâte)", cat: "Techniques", exp: "Période de fermentation de la pâte levée avant cuisson." },
+            { en: "To sift", fr: "Tamiser", cat: "Techniques", exp: "Passer une poudre au tamis pour éliminer les grumeaux." },
+            { en: "To pipe", fr: "Dresser à la poche", cat: "Techniques", exp: "Forme des choux, macaronages ou motifs avec une poche à douille." },
+            { en: "To cream", fr: "Crémer", cat: "Techniques", exp: "Mélanger beurre et sucre jusqu'à obtenir une consistance onctueuse." },
 
-    <main>
-      <div class="card-stage" id="card-stage"></div>
-      <div class="controls-stage" id="controls-stage"></div>
-    </main>
-  </div>
+            // INGREDIENTS
+            { en: "Flour", fr: "Farine", cat: "Ingrédients", exp: "Ingrédient de base structurant la majorité des pâtes." },
+            { en: "Baker's Yeast", fr: "Levure boulangère", cat: "Ingrédients", exp: "Organisme vivant permettant la fermentation des brioches et pains." },
+            { en: "Powdered sugar", fr: "Sucre glace", cat: "Ingrédients", exp: "Sucre très fin utilisé pour le décor et le glaçage." },
+            { en: "Heavy cream", fr: "Crème liquide entière", cat: "Ingrédients", exp: "Crème riche en matière grasse servant à faire la chantilly et les ganaches." },
+            { en: "Egg yolk", fr: "Jaune d'œuf", cat: "Ingrédients", exp: "Riche en lipides, apporte du liant et de la couleur aux crèmes." },
+            { en: "Gelatin sheet", fr: "Feuille de gélatine", cat: "Ingrédients", exp: "Gélifiant d'origine animale utilisé pour fixer les mousses." },
+            { en: "Cocoa butter", fr: "Beurre de cacao", cat: "Ingrédients", exp: "Matière grasse naturelle de la fève de cacao." },
 
-  <dialog id="settings-dialog" aria-labelledby="settings-title">
-    <form method="dialog" id="settings-form">
-      <h2 id="settings-title">Réglages</h2>
+            // PRODUITS FINIS
+            { en: "Puff pastry", fr: "Pâte feuilletée", cat: "Produits Finis", exp: "Pâte constituée d'une succession de feuillets grâce au tourage." },
+            { en: "Choux pastry", fr: "Pâte à choux", cat: "Produits Finis", exp: "Pâte cuite deux fois servant pour les éclairs et religieuses." },
+            { en: "Macaron", fr: "Macaron", cat: "Produits Finis", exp: "Petit biscuit à base de poudre d'amande, sucre et blancs d'œufs." },
+            { en: "Bavarian cream", fr: "Crème bavaroise", cat: "Produits Finis", exp: "Crème anglaise collée à la gélatine et additionnée de crème fouettée." },
+            { en: "Shortcrust pastry", fr: "Pâte brisée / sablée", cat: "Produits Finis", exp: "Pâte friable servant de fond pour les tartes." }
+        ];
 
-      <div class="field">
-        <label for="set-accent">Accent de la voix</label>
-        <select id="set-accent">
-          <option value="en-GB">Britannique (en-GB)</option>
-          <option value="en-US">Américain (en-US)</option>
-        </select>
-      </div>
+        /* --------------------------------------------------------------------------
+           2. BADGES & DEFINITIONS
+           -------------------------------------------------------------------------- */
+        const BADGES_DB = [
+            { id: "first_quiz", name: "Premier Pas", icon: "🌱", desc: "Terminer un tout premier quiz solo" },
+            { id: "duel_winner", name: "Maître du Duel", icon: "⚔️", desc: "Remporter une partie en mode Duel" },
+            { id: "perfect_score", name: "Sans Faute", icon: "💎", desc: "Obtenir 100% de bonnes réponses" },
+            { id: "streak_5", name: "En Feu 🔥", icon: "🔥", desc: "Réussir 5 bonnes réponses d'affilée" },
+            { id: "chef_100", name: "Chef Pâtissier", icon: "👑", desc: "Atteindre 100 points cumulés au total" }
+        ];
 
-      <div class="field">
-        <label for="set-key">Clé API Gemini (Mode Examen)</label>
-        <input id="set-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…">
-        <small>La clé est enregistrée dans le stockage local de ce navigateur, qui n’est pas un coffre-fort. Tout texte envoyé à la correction est transmis à Google Gemini. N’utilisez pas cette option sur un appareil partagé et ne diffusez jamais une clé personnelle.</small>
-      </div>
+        /* --------------------------------------------------------------------------
+           3. ETAT DE L'APPLICATION (STATE)
+           -------------------------------------------------------------------------- */
+        let state = {
+            userData: {
+                totalPoints: 0,
+                unlockedBadges: [],
+                mistakes: [] // tableau des mots anglais échoués
+            },
+            currentMode: 'solo', // 'solo', 'duel', 'mistakes'
+            quiz: {
+                questions: [],
+                currentIndex: 0,
+                score: 0,
+                streak: 0,
+                isAnswered: false,
+                roundsCount: 10
+            },
+            duel: {
+                p1Name: "Apprenti 1",
+                p2Name: "Apprenti 2",
+                p1Score: 0,
+                p2Score: 0,
+                roundsPerPlayer: 10,
+                currentPlayer: 1 // 1 ou 2
+            }
+        };
 
-      <div class="field">
-        <label for="set-model">Modèle Gemini</label>
-        <input id="set-model" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <small>À modifier seulement si Google retire le modèle par défaut.</small>
-      </div>
+        /* --------------------------------------------------------------------------
+           4. INITIALISATION AU CHARGEMENT
+           -------------------------------------------------------------------------- */
+        window.onload = function() {
+            loadUserData();
+            updateUIStats();
+            renderBadgesList();
+        };
 
-      <div class="btn-row" style="margin-bottom:12px">
-        <button class="btn-secondary" type="button" data-action="test-voice">🔊 Tester la voix</button>
-        <button class="btn-secondary danger" type="button" data-action="reset-progress">Remettre à zéro</button>
-      </div>
+        function loadUserData() {
+            const saved = localStorage.getItem('pastry_english_v2_data');
+            if (saved) {
+                try {
+                    state.userData = JSON.parse(saved);
+                } catch(e) {
+                    console.error("Erreur chargement localStorage", e);
+                }
+            }
+        }
 
-      <div class="btn-row">
-        <button class="btn-secondary" type="button" data-action="close-settings">Annuler</button>
-        <button class="btn-main" type="button" data-action="save-settings" id="settings-save">Enregistrer</button>
-      </div>
-    </form>
-  </dialog>
+        function saveUserData() {
+            localStorage.setItem('pastry_english_v2_data', JSON.stringify(state.userData));
+            updateUIStats();
+        }
 
-  <div id="toast" role="status" aria-live="polite"></div>
+        function updateUIStats() {
+            document.getElementById('mistakes-count').innerText = state.userData.mistakes.length;
+            document.getElementById('badges-unlocked-count').innerText = `${state.userData.unlockedBadges.length}/${BADGES_DB.length}`;
+        }
 
-  <noscript><p style="padding:24px">Cette application nécessite JavaScript.</p></noscript>
+        /* --------------------------------------------------------------------------
+           5. NAVIGATION & GESTION DES ECRANS
+           -------------------------------------------------------------------------- */
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(screenId);
+            if (target) {
+                target.classList.add('active');
+            }
+        }
 
-  <script src="data.js"></script>
-  <script src="core.js"></script>
-  <script src="exam.js"></script>
-  <script src="app.js"></script>
+        function confirmGoHome() {
+            // Si un quiz est actif et non terminé, demander confirmation
+            const quizScreen = document.getElementById('screen-quiz');
+            if (quizScreen.classList.contains('active') && !state.quiz.isAnswered && state.quiz.currentIndex < state.quiz.questions.length) {
+                document.getElementById('modal-confirm').style.display = 'flex';
+            } else {
+                showScreen('screen-home');
+            }
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('modal-confirm').style.display = 'none';
+        }
+
+        function forceGoHome() {
+            closeConfirmModal();
+            showScreen('screen-home');
+        }
+
+        /* --------------------------------------------------------------------------
+           6. SYNTHESE VOCALE (SPEECH SYNTHESIS)
+           -------------------------------------------------------------------------- */
+        function speakCurrentTerm() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stoppe toute lecture en cours
+                const q = state.quiz.questions[state.quiz.currentIndex];
+                if (!q) return;
+                const utterance = new SpeechSynthesisUtterance(q.en);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        /* --------------------------------------------------------------------------
+           7. GENERATION DE QUIZ ET LOGIQUE DU JEU
+           -------------------------------------------------------------------------- */
+        function shuffleArray(array) {
+            return [...array].sort(() => Math.random() - 0.5);
+        }
+
+        function generateQuizQuestions(sourceList, count) {
+            const shuffled = shuffleArray(sourceList);
+            const selected = shuffled.slice(0, Math.min(count, shuffled.length));
+
+            return selected.map(item => {
+                // Générer 3 fausses propositions
+                const otherFr = VOCABULARY_DB
+                    .filter(v => v.fr !== item.fr)
+                    .map(v => v.fr);
+                const falseOptions = shuffleArray(otherFr).slice(0, 3);
+                const allOptions = shuffleArray([item.fr, ...falseOptions]);
+
+                return {
+                    ...item,
+                    options: allOptions
+                };
+            });
+        }
+
+        function startSoloQuiz() {
+            state.currentMode = 'solo';
+            state.quiz.roundsCount = 10;
+            state.quiz.questions = generateQuizQuestions(VOCABULARY_DB, 10);
+            state.quiz.currentIndex = 0;
+            state.quiz.score = 0;
+            state.quiz.streak = 0;
+
+            document.getElementById('quiz-player-tag').innerText = 'Mode Solo';
+            showScreen('screen-quiz');
+            renderQuestion();
+        }
+
+        function startMistakesQuiz() {
+            if (state.userData.mistakes.length === 0) {
+                alert("Votre carnet de révisions est vide ! Faites des quiz pour enregistrer vos erreurs.");
+                return;
+            }
+
+            state.currentMode = 'mistakes';
+            const mistakesItems = VOCABULARY_DB.filter(v => state.userData.mistakes.includes(v.en));
+            state.quiz.roundsCount = mistakesItems.length;
+            state.quiz.questions = generateQuizQuestions(mistakesItems, mistakesItems.length);
+            state.quiz.currentIndex = 0;
+            state.quiz.score = 0;
+            state.quiz.streak = 0;
+
+            document.getElementById('quiz-player-tag').innerText = 'Révisions';
+            showScreen('screen-quiz');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            state.quiz.isAnswered = false;
+            const q = state.quiz.questions[state.quiz.currentIndex];
+            const total = state.quiz.questions.length;
+
+            // UI Updates
+            document.getElementById('quiz-step-counter').innerText = `Question ${state.quiz.currentIndex + 1}/${total}`;
+            document.getElementById('quiz-progress-bar').style.width = `${((state.quiz.currentIndex) / total) * 100}%`;
+            document.getElementById('question-category').innerText = q.cat;
+            document.getElementById('question-text').innerText = q.en;
+            
+            // Reinitialiser Feedback
+            document.getElementById('feedback-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+
+            // Options
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(opt, btn);
+                container.appendChild(btn);
+            });
+
+            // Prononciation automatique légère
+            setTimeout(() => speakCurrentTerm(), 300);
+        }
+
+        function handleAnswer(selectedOption, btnElement) {
+            if (state.quiz.isAnswered) return;
+            state.quiz.isAnswered = true;
+
+            const q = state.quiz.questions[state.quiz.currentIndex];
+            const isCorrect = (selectedOption === q.fr);
+            const allBtns = document.querySelectorAll('.option-btn');
+
+            allBtns.forEach(btn => {
+                btn.disabled = true;
+                if (btn.innerText === q.fr) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if (isCorrect) {
+                btnElement.classList.add('correct');
+                state.quiz.score++;
+                state.quiz.streak++;
+                state.userData.totalPoints += 10;
+
+                // Retirer du carnet d'erreurs si présent
+                const errIdx = state.userData.mistakes.indexOf(q.en);
+                if (errIdx > -1) {
+                    state.userData.mistakes.splice(errIdx, 1);
+                }
+
+                // Vérifier streak badge
+                if (state.quiz.streak >= 5) {
+                    unlockBadge('streak_5');
+                }
+            } else {
+                btnElement.classList.add('wrong');
+                state.quiz.streak = 0;
+
+                // Ajouter au carnet d'erreurs
+                if (!state.userData.mistakes.includes(q.en)) {
+                    state.userData.mistakes.push(q.en);
+                }
+            }
+
+            // Explication Pédagogique
+            document.getElementById('feedback-title').innerText = isCorrect ? "✅ Excellent !" : "❌ Explication :";
+            document.getElementById('feedback-text').innerText = q.exp;
+            document.getElementById('feedback-box').style.display = 'block';
+
+            // Afficher bouton suivant
+            document.getElementById('next-btn').style.display = 'flex';
+
+            // Sauvegarder progression
+            if (state.userData.totalPoints >= 100) {
+                unlockBadge('chef_100');
+            }
+            saveUserData();
+        }
+
+        function handleNextQuestion() {
+            state.quiz.currentIndex++;
+            if (state.quiz.currentIndex < state.quiz.questions.length) {
+                renderQuestion();
+            } else {
+                finishQuizRound();
+            }
+        }
+
+        function finishQuizRound() {
+            document.getElementById('quiz-progress-bar').style.width = '100%';
+
+            if (state.currentMode === 'solo' || state.currentMode === 'mistakes') {
+                // Fin de mode Solo
+                unlockBadge('first_quiz');
+                if (state.quiz.score === state.quiz.questions.length) {
+                    unlockBadge('perfect_score');
+                }
+
+                document.getElementById('results-title').innerText = "Quiz Terminé !";
+                document.getElementById('results-score-text').innerText = `${state.quiz.score}/${state.quiz.questions.length}`;
+                const pct = Math.round((state.quiz.score / state.quiz.questions.length) * 100);
+                document.getElementById('results-score-pct').innerText = `${pct}% de Réussite`;
+                document.getElementById('duel-results-details').style.display = 'none';
+
+                showScreen('screen-results');
+            } else if (state.currentMode === 'duel') {
+                if (state.duel.currentPlayer === 1) {
+                    state.duel.p1Score = state.quiz.score;
+                    state.duel.currentPlayer = 2;
+                    // Transition vers le joueur 2
+                    showDuelTransition();
+                } else {
+                    state.duel.p2Score = state.quiz.score;
+                    // Fin complète du Duel
+                    finishDuelGame();
+                }
+            }
+        }
+
+        function restartCurrentMode() {
+            if (state.currentMode === 'solo') startSoloQuiz();
+            else if (state.currentMode === 'mistakes') startMistakesQuiz();
+            else if (state.currentMode === 'duel') initDuelGame();
+        }
+
+        /* --------------------------------------------------------------------------
+           8. LOGIQUE SPECIFIQUE MODE DUEL
+           -------------------------------------------------------------------------- */
+        function selectDuelRounds(rounds, element) {
+            state.duel.roundsPerPlayer = rounds;
+            document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function initDuelGame() {
+            state.currentMode = 'duel';
+            state.duel.p1Name = document.getElementById('p1-name').value.trim() || "Joueur 1";
+            state.duel.p2Name = document.getElementById('p2-name').value.trim() || "Joueur 2";
+            state.duel.p1Score = 0;
+            state.duel.p2Score = 0;
+            state.duel.currentPlayer = 1;
+
+            // Générer un pool commun de questions
+            state.duel.questionsPool = generateQuizQuestions(VOCABULARY_DB, state.duel.roundsPerPlayer);
+
+            showDuelTransition();
+        }
+
+        function showDuelTransition() {
+            const pName = (state.duel.currentPlayer === 1) ? state.duel.p1Name : state.duel.p2Name;
+            const avatar = (state.duel.currentPlayer === 1) ? "👨‍🍳" : "👩‍🍳";
+
+            document.getElementById('transition-player-name').innerText = pName;
+            document.getElementById('transition-avatar').innerText = avatar;
+
+            showScreen('screen-duel-transition');
+        }
+
+        function startDuelTurn() {
+            const pName = (state.duel.currentPlayer === 1) ? state.duel.p1Name : state.duel.p2Name;
+            
+            state.quiz.questions = state.duel.questionsPool; // Même questions
+            state.quiz.currentIndex = 0;
+            state.quiz.score = 0;
+            state.quiz.streak = 0;
+
+            document.getElementById('quiz-player-tag').innerText = `Tour de : ${pName}`;
+            showScreen('screen-quiz');
+            renderQuestion();
+        }
+
+        function finishDuelGame() {
+            unlockBadge('duel_winner');
+
+            let winnerText = "";
+            if (state.duel.p1Score > state.duel.p2Score) {
+                winnerText = `🏆 ${state.duel.p1Name} Remporte le Duel !`;
+            } else if (state.duel.p2Score > state.duel.p1Score) {
+                winnerText = `🏆 ${state.duel.p2Name} Remporte le Duel !`;
+            } else {
+                winnerText = "🤝 Égalité Parfaite !";
+            }
+
+            document.getElementById('results-title').innerText = winnerText;
+            document.getElementById('results-score-text').innerText = `${state.duel.p1Score} - ${state.duel.p2Score}`;
+            document.getElementById('results-score-pct').innerText = "Score Comparatif";
+
+            // Remplir la table de détail
+            const tbody = document.getElementById('duel-tbody');
+            const pct1 = Math.round((state.duel.p1Score / state.duel.roundsPerPlayer) * 100);
+            const pct2 = Math.round((state.duel.p2Score / state.duel.roundsPerPlayer) * 100);
+
+            tbody.innerHTML = `
+                <tr>
+                    <td style="font-weight:700; color:#fff;">${state.duel.p1Name}</td>
+                    <td style="color:var(--accent-gold); font-weight:800;">${state.duel.p1Score}/${state.duel.roundsPerPlayer}</td>
+                    <td>${pct1}%</td>
+                </tr>
+                <tr>
+                    <td style="font-weight:700; color:#fff;">${state.duel.p2Name}</td>
+                    <td style="color:var(--accent-gold); font-weight:800;">${state.duel.p2Score}/${state.duel.roundsPerPlayer}</td>
+                    <td>${pct2}%</td>
+                </tr>
+            `;
+
+            document.getElementById('duel-results-details').style.display = 'block';
+            showScreen('screen-results');
+        }
+
+        /* --------------------------------------------------------------------------
+           9. SYSTEME DE BADGES ET NOTIFICATIONS
+           -------------------------------------------------------------------------- */
+        function unlockBadge(badgeId) {
+            if (!state.userData.unlockedBadges.includes(badgeId)) {
+                state.userData.unlockedBadges.push(badgeId);
+                saveUserData();
+                renderBadgesList();
+
+                const badge = BADGES_DB.find(b => b.id === badgeId);
+                if (badge) {
+                    showBadgeToast(badge);
+                }
+            }
+        }
+
+        function showBadgeToast(badge) {
+            const toast = document.getElementById('badge-toast');
+            document.getElementById('toast-icon').innerText = badge.icon;
+            document.getElementById('toast-title').innerText = badge.name;
+
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
+        }
+
+        function renderBadgesList() {
+            const container = document.getElementById('badges-container');
+            container.innerHTML = '';
+
+            BADGES_DB.forEach(badge => {
+                const isUnlocked = state.userData.unlockedBadges.includes(badge.id);
+                const el = document.createElement('div');
+                el.className = `badge-item ${isUnlocked ? 'unlocked' : ''}`;
+                el.innerHTML = `
+                    <div class="badge-icon">${badge.icon}</div>
+                    <div class="badge-name">${badge.name}</div>
+                    <div class="badge-desc">${badge.desc}</div>
+                `;
+                container.appendChild(el);
+            });
+        }
+    </script>
 </body>
 </html>
